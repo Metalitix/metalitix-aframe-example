@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <title>MetalitixLogger AFRAME example</title>
     <script src="../node_modules/aframe/dist/aframe-v1.3.0.js"></script>
-    <script src="https://cdn.metalitix.com/scripts/mtx-poll-a-frame.js"></script>
+    <script src="https://cdn.metalitix.com/logger/a-frame/latest/a-frame.js"></script>
   </head>
   <body>
     <a-scene id="my-scene">
@@ -24,7 +24,7 @@
     </a-scene>
 
     <script>
-      /** 
+      /**
        * METALITIX INITIALIZATION
        * The code below initializes a Metalitix logger with custom settings:
        *  - Record data every half a second
@@ -57,7 +57,7 @@
       const KEYS = ['M', 'T', 'X']
       window.addEventListener('keydown', function(event) {
         if(!(event)) event = window.event
-        
+
         const key = event.key.toUpperCase()
         if(KEYS.includes(key)) {
           logger.logKeyDownEvent(event.pageX, event.pageY, {
