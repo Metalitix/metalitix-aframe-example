@@ -4,66 +4,50 @@
     <meta charset="UTF-8" />
     <title>MetalitixLogger AFRAME example</title>
     <script src="../node_modules/aframe/dist/aframe-v1.3.0.js"></script>
-    <script src="https://cdn.metalitix.com/scripts/mtx-poll-a-frame.js"></script>
+    <script src="https://cdn.metalitix.com/logger/a-frame/latest/a-frame.js"></script>
   </head>
   <body>
-    <a-scene id="my-scene">
-      <a-camera position="0 0 250"></a-camera>
+    <!--
+      METALITIX INITIALIZATION
+      The attribute below initializes Metalitix and will record camera position relative to `my-scene-model`.
+    -->
+    <a-scene
+      metalitix-logger="
+          apiKey: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx;
+          sceneId: my-scene-model;
+      ">
       <a-assets>
         <a-asset-item id="Teapot" src="glTF/Teapot.gltf"></a-asset-item>
       </a-assets>
 
-      <a-entity gltf-model="#Teapot"></a-entity>
-      <a-entity
-        cursor="fuse: true; fuseTimeout: 500"
-        position="0 0 -1"
-        geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
-        material="color: black; shader: flat"
-      >
-      </a-entity>
+      <a-camera position="0 0 250"></a-camera>
+      <a-entity id="my-scene-model" gltf-model="#Teapot"></a-entity>
     </a-scene>
 
     <script>
-      /** 
-       * METALITIX INITIALIZATION
-       * The code below initializes a Metalitix logger with custom settings:
-       *  - Record data every half a second
-       *  - Enable a random prompt asking the user their engagement level
-       *  - Set the color theme of the prompt 'white'
-       */
-      const metalitixLoggerAppKey = 'YOUR_APP_KEY_CODE';
-      const optionalPollInterval = 500;
-      const optionalShowSurvey = true;
-      const optionalSurveyTheme = 'white';
-      const logger = new MetalitixLogger(metalitixLoggerAppKey, {
-        pollInterval: optionalPollInterval,
-        showSurvey: optionalShowSurvey,
-        surveyTheme: optionalSurveyTheme,
-      });
+      // Wait for A-Frame to load to grab the Metalitix Logger component. //
+      document.querySelector('a-scene').addEventListener('loaded', () => {
+        const logger = document.querySelector('a-scene').components['metalitix-logger'].logger
+        logger.setAttribute("Did Press", false) // Set the default custom attribute value.
 
-      /**
-       * METALITIX LOGGING
-       * The code below tells Metalitix to begin recording behavior in the specified scene.
-       */
-      const scene = document.getElementById('my-scene');
-      logger.startSession(scene);
-
-      /**
-       * METALITIX CUSTOM LOGGING
-       * The code below will record key presses of 'M', 'T', and 'X' to Metalitix.
-       * These presses will be recorded as a 'KeyDown' event with custom metrics.
-       * The custom metric will save '[M/T/X] Pressed' under 'custom-metric-cta'.
-       */
-      const KEYS = ['M', 'T', 'X']
-      window.addEventListener('keydown', function(event) {
-        if(!(event)) event = window.event
-        
-        const key = event.key.toUpperCase()
-        if(KEYS.includes(key)) {
-          logger.logKeyDownEvent(event.pageX, event.pageY, {
-            'custom-metric-cta': `${key} Pressed`
-          })
-        }
+        /**
+         * METALITIX CUSTOM METRICS
+         * The code below will record key presses of 'M', 'T', and 'X' to Metalitix.
+         * - Initialized to `false` above, the session's attribute "Did Press" will change to `true`
+         * - The key 'M', 'T', or 'X' will record to the chart "Key Presses"
+         * - The number of times a key is pressed will accumulate and aggregate in the chart "Press Count"
+         */
+        const KEYS = ['M', 'T', 'X']
+        window.addEventListener('keydown', function(event) {
+          if(!(event)) event = window.event
+          
+          const key = event.key.toUpperCase()
+          if(KEYS.includes(key)) {
+            logger.setAttribute("Did Press", true)
+            logger.logEvent("Key Presses", `${key} Pressed`)
+            logger.logState("Press Count", 1)
+          }
+        })
       })
     </script>
   </body>
